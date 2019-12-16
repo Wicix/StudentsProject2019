@@ -13,10 +13,10 @@ Streaming_History_df <- function(folder_path){
 
 
 ##returns streaming history with end time changed to date
-mutate(streaming_history, end_time = ymd_hm(end_time))
+#mutate(streaming_history, end_time = ymd_hm(end_time))
 
 ##returns streaming_history with end_time column changed from character to date
-mutate(streaming_history, s_played = dmilliseconds((s_played)))
+#mutate(streaming_history, s_played = dmilliseconds((s_played)))
 
 names_change <- function(streaming_history, column_names = c("end_time", "artist_name", "track_name", "s_played")){
   names(streaming_history) <- column_names
