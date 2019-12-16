@@ -10,10 +10,7 @@ Streaming_History_df <- function(folder_path){
   bind_rows(read_files)
 }
 
-names_change <- function(streaming_history, column_names = c("end_time", "artist_name", "track_name", "s_played")){
-  names(streaming_history) <- column_names
-  streaming_history
-}
+
 
 ##returns streaming history with end time changed to date
 mutate(streaming_history, end_time = ymd_hm(end_time))
@@ -21,6 +18,10 @@ mutate(streaming_history, end_time = ymd_hm(end_time))
 ##returns streaming_history with end_time column changed from character to date
 mutate(streaming_history, s_played = dmilliseconds((s_played)))
 
+names_change <- function(streaming_history, column_names = c("end_time", "artist_name", "track_name", "s_played")){
+  names(streaming_history) <- column_names
+  streaming_history
+}
 ##returns streaming_history with added start_time column using end_time and ms_played
 add_start_time <- function(streaming_history){
   
@@ -56,7 +57,7 @@ Streaming_History_Complete <- function(folder_path){
 Search_Queries_df <- function(folder_path){
   file_path <-list.files(folder_path,"SearchQueries")
   select(jsonlite::fromJSON(file_path),1:3) %>%
-    mutate(date = ymd(date))
+  mutate(date = ymd(date))
 }
 
 
@@ -81,7 +82,7 @@ Playlist_df_function <- function(folder_path){
 }
 
 # creating dataframe similar to Streaming_History_Complete, but this one has additional 
-#column which has string of playlists that including that song, separated by ;
+#column with lists of playlists that including that song
 Playlist_df_Str_his <- function(folder_path){
   Str_his_df <- Streaming_History_Complete(folder_path)
   Playlist_df <- Playlist_df_function(folder_path)
@@ -100,20 +101,71 @@ Playlist_df_Str_his <- function(folder_path){
            In_which_playlist[j,1] <- Playlist_df[i,1]
            break
          }
-          else {In_which_playlist[j,1] <- paste(In_which_playlist[j,1], ";",Playlist_df[i,1])
+          else {In_which_playlist[j,1]<- paste(In_which_playlist[j,1], ";",Playlist_df[i,1])
             break
           }
         }
-           
-          
-        
-      }
+     }
     }
   }
-  return(cbind(Str_his_df,In_which_playlist))
-  
+  strsplit_playlist <- function(dataframe){
+    dataframe$In_playlists <- strsplit(dataframe$In_playlists,";")
+    dataframe
+  }
+  cbind(Str_his_df,In_which_playlist) %>%
+  strsplit_playlist
 }
 
-a <- Playlist_df_Str_his(".")
-b <- Search_Queries_df(".")
+how_many_skipped <- function(streaming_history, start_date, end_date, as_percentage = FALSE){
+  filtered <- filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date), skipped == TRUE)  
+  if(as_percentage) {
+    return (paste(round((nrow(filtered)/nrow(streaming_history)) * 100, digits = 3), "%", sep = ""))
+  }
+  
+  return(nrow(filtered))
+}
 
+#how long you listened to spotify in given time period, as a duration or as a percentage 
+how_long_listened <- function(streaming_history, start_date, end_date, as_percentage = FALSE){
+  filtered <- filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date))
+  suma <- sum(filtered[["s_played"]])
+  seconds_in_period <-as.numeric(difftime(end_date,start_date, units = "secs"))
+  if (as_percentage) return(paste(round(suma/seconds_in_period * 100, digits = 3), "%", sep = ""))
+  return (as.duration(suma))
+}
+
+#which songs were played the most times in given time period
+most_played_track <- function(streaming_history, start_date, end_date, how_many = 10){
+  df <-filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date), skipped == FALSE) %>% 
+    group_by(track_name) %>% 
+    summarise(number = n())
+  df <- df[order(-df[["number"]]),]
+  df[1:how_many,]
+}
+
+#which songs were skipped the most times in given time period
+most_skipped_track <- function(streaming_history, start_date, end_date, how_many = 10){
+  df <-filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date), skipped == TRUE) %>% 
+    group_by(track_name) %>% 
+    summarise(number = n())
+  df <- df[order(-df[["number"]]),]
+  df[1:how_many,]
+}
+
+#which artists were played the most times in given time period
+most_played_artist <- function(streaming_history, start_date, end_date, how_many = 10){
+  df <-filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date), skipped == FALSE) %>% 
+    group_by(artist_name) %>% 
+    summarise(number = n())
+  df <- df[order(-df[["number"]]),]
+  df[1:how_many,]
+}
+
+#which atrists were skipped the most times in given time period
+most_skipped_artist <- function(streaming_history, start_date, end_date, how_many = 10){
+  df <-filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date), skipped == TRUE) %>% 
+    group_by(artist_name) %>% 
+    summarise(number = n())
+  df <- df[order(-df[["number"]]),]
+  df[1:how_many,]
+}
