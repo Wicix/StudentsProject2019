@@ -62,8 +62,7 @@ search_queries_df <- function(folder_path){
 
 
 
-### creating dataframe with names of playlists, string containing song names separated 
-#by ";;;" and artist names separated by ";;;"
+### creating dataframe with names of playlists, lists with character of song names, and artist"
 playlist_df_function <- function(folder_path) {
   song_names_function <- function(x)
     return(df[[2]][[x]][[1]][[1]])
