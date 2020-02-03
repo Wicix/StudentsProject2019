@@ -10,11 +10,13 @@ ui <- fluidPage(
                sidebarPanel(width = 3,
                             selectInput("which_plots", "Which plots to show", c("Platform used", "Country", "Number of songs")),
                             dateInput('start_date_plots',
-                                      label = ('Start date: yyyy-mm-dd')
+                                      label = ('Start date: yyyy-mm-dd'),
+                                      value = ymd("2019-10-01")
                             ),
                             dateInput('end_date_plots',
                                       label = ('End date: yyyy-mm-dd'),
-                                      value = Sys.Date()),
+                                      value = ymd("2019-10-30")
+                            ),
                             uiOutput("ui2"),
                             uiOutput("ui3"),
                             uiOutput("ui4"),
@@ -34,10 +36,10 @@ ui <- fluidPage(
                sidebarPanel(width = 3,
                             dateInput('start_date_tables',
                                       label = ('Start date: yyyy-mm-dd'),
-                                      value = Sys.Date()),
+                                      value = ymd("2019-10-01")),
                             dateInput('end_date_tables',
                                       label = ('End date: yyyy-mm-dd'),
-                                      value = Sys.Date()),
+                                      value = ymd("2019-10-30")),
                             radioButtons("track_or_artist_tables", label = ("Track or Artist"),
                                          choices = list("Artist" = "artist_name", "Track" = "track_name"),
                                          selected = "artist_name"),
@@ -54,10 +56,10 @@ ui <- fluidPage(
                                                      choices = list("Yes" = TRUE, "No" = FALSE), selected = FALSE ),
                                         dateInput('start_date_summary',
                                                   label = ('Start date: yyyy-mm-dd'),
-                                                  value = Sys.Date()),
+                                                  value = ymd("2019-10-01")),
                                         dateInput('end_date_summary',
                                                   label = ('End date: yyyy-mm-dd'),
-                                                  value = Sys.Date())),
+                                                  value = ymd("2019-10-30"))),
                            mainPanel(h4("Summary table"),tableOutput("summary_table"))
              )))
 )
