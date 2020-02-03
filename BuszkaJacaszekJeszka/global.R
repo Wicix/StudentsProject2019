@@ -161,17 +161,18 @@ create_summary_table <- function(streaming_history, start_date, end_date, as_per
   skip <- length(unique(filtered[,7]))
   hl_listened <- as.character(how_long_listened(streaming_history, start_date, end_date, as_percentage))
   
-  Characteristic <- c("Songs played in total","Different songs played","Songs skipped","Different artists played","How long you listened to Spotify")
+  Characteristic <- c("Songs played in total",
+                      "Different songs played",
+                      "Songs skipped","Different artists played",
+                      "How long you listened to Spotify")
   Value <- c( hm_songs_played, hm_different_tracks, hm_skipped, hm_different_artists, hl_listened)
   
   summary_table <- data.frame(Characteristic, Value)
   summary_table
   
-  
-  
 }
 
-#which songs/artist were played/skipped the most/least times in given time period
+#which songs/artist were played/skipped the most in given time period
 most_played_skipped_track_artist <- function(streaming_history, start_date, end_date, how_many = 10, is_skipped,track_or_artist ){
   df <-filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date), skipped == is_skipped) %>% 
     group_by(eval(as.name(track_or_artist))) %>% 
@@ -181,33 +182,7 @@ most_played_skipped_track_artist <- function(streaming_history, start_date, end_
     colnames(df) <- c("track name","number")} else{colnames(df) <- c("artist name","number")}
   df[1:how_many,]
 }
-# 
-# #which songs were skipped the most times in given time period
-# most_skipped_track <- function(streaming_history, start_date, end_date, how_many = 10){
-#   df <-filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date), skipped == TRUE) %>% 
-#     group_by(track_name) %>% 
-#     summarise(number = n())
-#   df <- df[order(-df[["number"]]),]
-#   df[1:how_many,]
-# }
-# 
-# #which artists were played the most times in given time period
-# most_played_artist <- function(streaming_history, start_date, end_date, how_many = 10){
-#   df <-filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date), skipped == FALSE) %>% 
-#     group_by(artist_name) %>% 
-#     summarise(number = n())
-#   df <- df[order(-df[["number"]]),]
-#   df[1:how_many,]
-# }
-# 
-# #which atrists were skipped the most times in given time period
-# most_skipped_artist <- function(streaming_history, start_date, end_date, how_many = 10){
-#   df <-filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date), skipped == TRUE) %>% 
-#     group_by(artist_name) %>% 
-#     summarise(number = n())
-#   df <- df[order(-df[["number"]]),]
-#   df[1:how_many,]
-# }
+
 
 ###functions to be used on streaming history
 
@@ -235,8 +210,6 @@ number_of_songs_listened_by_hour <- function(streaming_history, start_date, end_
   vis
 }
 
-
-# number_of_songs_listened_by_weekday(streaming_History, "2019-06-10", "2019-10-09")
 ##visualizes number of songs listened by weekday in given time period
 number_of_songs_listened_by_weekday <- function(streaming_history, start_date, end_date, dont_show_skipped = TRUE){
   filtered <- filter(streaming_history, start_time >= ymd(start_date), start_time <= ymd(end_date)) 
@@ -277,9 +250,7 @@ platform_used <- function(search_queries, start_date, end_date){
     xlab("Platform used") +
     ylab("How many searches") +
     scale_fill_brewer(palette="Accent")
-  
-  
-}
+ }
 
 ##
 country <- function(search_queries, start_date, end_date){
@@ -318,3 +289,4 @@ country_by_date <- function(search_queries, start_date, end_date){
     ylab("How many searches") +
     scale_color_brewer(palette="Accent")
 }
+
